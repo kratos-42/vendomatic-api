@@ -1,5 +1,5 @@
 export default () => ({
   graphql: {
-    debug: true,
+    debug: false
   },
 });
