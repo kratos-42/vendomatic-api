@@ -1,0 +1,29 @@
+name: Node tests
+description: Run tests for Node.js projects 
+
+runs:
+  using: composite
+  steps:
+  - name: Setup Node.js env
+    uses: actions/setup-node@main
+    with:
+      node-version: ${{ matrix.node-version }}
+      cache: 'yarn'
+
+  - name: Install dependencies
+    shell: bash
+    run: rm -rf node_modules && yarn install --frozen-lockfile
+
+  - name: Run code checkers
+    shell: bash
+    run: |
+      yarn lint:check
+      yarn format:check
+
+  - name: Execute tests
+    shell: bash
+    run: yarn test
+
+  - name: Test build
+    shell: bash
+    run: yarn build
