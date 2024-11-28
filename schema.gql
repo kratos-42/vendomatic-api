@@ -2,11 +2,36 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-"""health"""
-type Health {
-  value: String!
+type Spot {
+  createdAt: DateTime!
+  id: String!
+  name: String!
+  location: String!
+  updatedAt: DateTime!
 }
 
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type Query {
-  checkHealth: Health!
+  spots: [Spot!]!
+  spot(id: String!): Spot!
+}
+
+type Mutation {
+  createSpot(input: CreateSpotInput!): Spot!
+  updateSpot(id: String!, input: UpdateSpotInput!): Spot!
+  removeSpot(id: String!): Spot!
+}
+
+input CreateSpotInput {
+  location: String!
+  name: String!
+}
+
+input UpdateSpotInput {
+  location: String
+  name: String
 }
