@@ -4,12 +4,21 @@ name: Pull request
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
 
 jobs:
-  build:
+  test:
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DB: test
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
 
     runs-on: ubuntu-latest
 
@@ -18,6 +27,13 @@ jobs:
         node-version: [20.x]
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Run tests
-      uses: ./.github/actions/node/tests
+      - uses: actions/checkout@v4
+      - name: Run tests
+        uses: ./.github/actions/node/tests
+
+    env:
+      # The hostname used to communicate with the PostgreSQL service container
+      DATABASE_CONNECTION_DATABASE: test
+      DATABASE_CONNECTION_HOST: localhost
+      DATABASE_CONNECTION_PASSWORD: postgres
+      DATABASE_CONNECTION_USERNAME: postgres

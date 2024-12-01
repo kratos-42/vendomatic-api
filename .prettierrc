@@ -4,11 +4,11 @@
   "tabWidth": 2,
   "useTabs": false,
   "trailingComma": "all",
-  "printWidth": 120,
-  "bracketSpacing": true,
+  "printWidth": 100,
   "endOfLine": "lf",
+  "bracketSpacing": true,
   "embeddedLanguageFormatting": "auto",
   "quoteProps": "consistent",
-  "requirePragma": true,
-  "insertPragma": true
+  "requirePragma": false,
+  "insertPragma": false
 }

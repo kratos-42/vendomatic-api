@@ -1,0 +1,5 @@
+.eslintrc.cjs
+.prettierrc
+jest-cov.config.cjs
+jest-e2e.config.cjs
+jest.config.cjs
