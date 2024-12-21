@@ -18,4 +18,4 @@ export const spotFixture = async (module: TestingModule, payload?: SpotFixturePa
  * Types.
  */
 
-export type SpotFixturePayload = Omit<Spot, 'createdAt' | 'id' | 'updatedAt'>;
+export type SpotFixturePayload = Partial<Omit<Spot, 'createdAt' | 'id' | 'updatedAt'>>;
