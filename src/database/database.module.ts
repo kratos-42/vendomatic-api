@@ -1,30 +1,27 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
-import { Database } from '@config/types/database.config';
-import { Spot } from '@spot/entities/spot.entity';
+import datasource, { datasourceConfig } from '@database/datasource.config';
 
 @Module({
-  exports: [TypeOrmModule],
   imports: [
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const database = configService.get<Database>('database');
-
-        return {
-          database: database.connection.database,
-          entities: [Spot],
-          host: database.connection.host,
-          password: database.connection.password,
-          synchronize: true,
-          type: database.driver,
-          username: database.connection.username,
-        };
+      useFactory: () => {
+        return datasourceConfig;
       },
     }),
+  ],
+  providers: [
+    {
+      provide: DataSource,
+      useFactory: () => {
+        return datasource.initialize();
+      },
+    },
   ],
 })
 export class DatabaseModule {}
