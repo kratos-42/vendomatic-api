@@ -10,7 +10,7 @@ import {
 @Entity()
 @ObjectType()
 export class Spot {
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp with time zone' })
   @Field()
   createdAt: Date;
 
@@ -26,7 +26,7 @@ export class Spot {
   @Field()
   location: string;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp with time zone' })
   @Field()
   updatedAt: Date;
 }

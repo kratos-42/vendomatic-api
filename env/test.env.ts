@@ -3,6 +3,7 @@ export default () => ({
     connection: {
       database: 'test',
       host: 'localhost',
+      port: '5432',
       username: 'postgres',
     },
     driver: 'postgres',

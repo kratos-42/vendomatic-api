@@ -66,15 +66,14 @@ export class BaseRepository<M extends ObjectLiteral> extends Repository<M> {
 
   async patchById(id: string, payload: Partial<M>): Promise<InsertAndFetchResponse<M>> {
     const qb = this.createQueryBuilder();
-    const result = await qb
-      .update()
-      .set(payload)
-      .where(`${this.primaryColumn} = :id`, { id })
-      .returning('*')
-      .execute();
+
+    await qb.update().set(payload).where(`${this.primaryColumn} = :id`, { id }).execute();
+
+    // We need to fetch to get the data serialized.
+    const { data } = await this.findById(id);
 
     return {
-      data: head(result.raw),
+      data,
       message: `${this.metadata.tableName} successfully patched and fetched`,
     };
   }

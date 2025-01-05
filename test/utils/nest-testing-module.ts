@@ -9,7 +9,6 @@ export const initializeApp = async (): Promise<InitializeAppResponse> => {
   const app = module.createNestApplication();
   const dataSource = app.get(DataSource);
 
-  await dataSource.synchronize(true);
   await app.init();
 
   return { app, dataSource, module };

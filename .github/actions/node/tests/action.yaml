@@ -25,12 +25,13 @@ runs:
       yarn lint:check
       yarn format:check
 
+  - name: Build and run migrations
+    shell: bash
+    run: NODE_ENV=test yarn migration:run
+
   - name: Execute tests
     shell: bash
     run: |
       yarn test
       yarn test:e2e
 
-  - name: Test build
-    shell: bash
-    run: yarn build

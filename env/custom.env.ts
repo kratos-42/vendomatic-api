@@ -22,6 +22,7 @@ export default () => {
         database: process.env.DATABASE_CONNECTION_DATABASE,
         host: process.env.DATABASE_CONNECTION_HOST,
         password: process.env.DATABASE_CONNECTION_PASSWORD,
+        port: process.env.DATABASE_CONNECTION_PORT ?? 5432,
         username: process.env.DATABASE_CONNECTION_USERNAME,
       },
       driver: process.env.DATABASE_DRIVER,
@@ -34,5 +35,5 @@ export default () => {
     },
   };
 
-  return merge(configuration(), customConfig);
+  return merge(customConfig, configuration());
 };
