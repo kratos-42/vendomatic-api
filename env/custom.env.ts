@@ -33,6 +33,10 @@ export default () => {
     server: {
       port: process.env.SERVER_PORT ?? 3000,
     },
+    supabase: {
+      key: process.env.SUPABASE_KEY,
+      url: process.env.SUPABASE_URL,
+    },
   };
 
   return merge(customConfig, configuration());
