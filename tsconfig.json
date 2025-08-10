@@ -17,11 +17,14 @@
     "incremental": true,
     "paths": {
       "@app/*": ["src/*"],
+      "@auth/*": ["src/auth/*"],
+      "@common/*": ["src/common/*"],
       "@config/*": ["src/config/*"],
       "@database/*": ["src/database/*"],
       "@graphql/*": ["src/graphql/*"],
       "@spot/*": ["src/spot/*"],
-      "@test/*": ["test/*"]
+      "@test/*": ["test/*"],
+      "@user/*": ["src/user/*"]
     },
     "skipLibCheck": true,
     "strictNullChecks": false,

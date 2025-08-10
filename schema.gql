@@ -2,6 +2,24 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type User {
+  email: String!
+  id: ID!
+  name: String
+  role: String!
+}
+
+type Session {
+  accessToken: String!
+  expiresIn: Float!
+  refreshToken: String!
+}
+
+type AuthOutput {
+  session: Session!
+  user: User!
+}
+
 type Spot {
   createdAt: DateTime!
   id: String!
@@ -18,12 +36,24 @@ scalar DateTime
 type Query {
   spots: [Spot!]!
   spot(id: String!): Spot!
+
+  """Get current authenticated user"""
+  me: User!
 }
 
 type Mutation {
   createSpot(input: CreateSpotInput!): Spot!
   updateSpot(id: String!, input: UpdateSpotInput!): Spot!
   removeSpot(id: String!): Spot!
+
+  """Login with email and password"""
+  login(input: LoginInput!): AuthOutput!
+
+  """Logout current user"""
+  logout: Boolean!
+
+  """Refresh access token"""
+  refreshToken(input: RefreshTokenInput!): AuthOutput!
 }
 
 input CreateSpotInput {
@@ -34,4 +64,13 @@ input CreateSpotInput {
 input UpdateSpotInput {
   location: String
   name: String
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input RefreshTokenInput {
+  refreshToken: String!
 }

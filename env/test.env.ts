@@ -11,4 +11,8 @@ export default () => ({
   graphql: {
     debug: true,
   },
+  supabase: {
+    key: 'test',
+    url: 'http://localhost:54321',
+  },
 });

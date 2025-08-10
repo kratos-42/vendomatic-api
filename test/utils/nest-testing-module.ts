@@ -6,7 +6,7 @@ import { AppModule } from 'src/app.module';
 
 export const initializeApp = async (): Promise<InitializeAppResponse> => {
   const module = await Test.createTestingModule({ imports: [AppModule] }).compile();
-  const app = module.createNestApplication();
+  const app = module.createNestApplication({ logger: false });
   const dataSource = app.get(DataSource);
 
   await app.init();
