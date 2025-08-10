@@ -1,12 +1,9 @@
 import { INestApplication } from '@nestjs/common';
-import { TestingModule } from '@nestjs/testing';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { mockDeep } from 'jest-mock-extended';
-import { head } from 'lodash';
 import request from 'supertest';
 
 import { Role } from '@auth/enums/role.enum';
-import { SpotService } from '@spot/spot.service';
 import { createGetUserSuccessStub } from '@test/stubs/supabase';
 import { clearDatabase } from '@test/utils/database-util';
 import { initializeApp } from '@test/utils/nest-testing-module';
@@ -22,14 +19,11 @@ jest.mock('@supabase/supabase-js', () => ({
   createClient: jest.fn(() => mockSupabaseClient),
 }));
 
-describe('createSpot (e2e)', () => {
+describe('me (e2e)', () => {
   let app: INestApplication;
-  let service: SpotService;
-  let module: TestingModule;
 
   beforeAll(async () => {
-    ({ app, module } = await initializeApp());
-    service = module.get<SpotService>(SpotService);
+    ({ app } = await initializeApp());
   });
 
   beforeEach(async () => {
@@ -44,68 +38,56 @@ describe('createSpot (e2e)', () => {
     jest.clearAllMocks();
   });
 
-  it('should create a `spot` with admin role', async () => {
+  it('should successfully return authenticated user data', async () => {
     const accessToken = 'valid-access-token';
-    const email = 'admin@example.com';
+    const email = 'test@example.com';
 
     mockSupabaseClient.auth.getUser.mockResolvedValue(
       createGetUserSuccessStub({
         email,
-        id: 'admin-123',
+        id: 'user-123',
         user_metadata: {
-          name: 'Admin User',
+          name: 'Test User',
           role: Role.ADMIN,
         },
       }),
     );
 
-    const name = 'foo';
-    const location = 'waldo';
     const { body } = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${accessToken}`)
-      .expect(200)
       .send({
-        query: `
-          mutation {
-            createSpot(input: { location: "${location}" name: "${name}" }) {
-              createdAt
-              id
-              name
-              location
-              updatedAt
-            }
+        query: `query {
+          me {
+            email
+            id
+            name
+            role
           }
-        `,
-      });
+        }`,
+      })
+      .expect(200);
 
-    const spots = await service.findAll();
-    const spot = head(spots);
-
-    expect(spots.length).toEqual(1);
-    expect(body.data.createSpot).toEqual({
-      ...head(spots),
-      createdAt: spot.createdAt.toISOString(),
-      updatedAt: spot.updatedAt.toISOString(),
+    expect(body.data.me).toEqual({
+      email,
+      id: 'user-123',
+      name: 'Test User',
+      role: Role.ADMIN,
     });
 
     expect(mockSupabaseClient.auth.getUser).toHaveBeenCalledWith(accessToken);
   });
 
-  it('should require authentication to create spot', async () => {
-    const name = 'foo';
-    const location = 'waldo';
+  it('should require authentication to access me query', async () => {
     const { body } = await request(app.getHttpServer())
       .post('/graphql')
       .send({
-        query: `
-          mutation {
-            createSpot(input: { location: "${location}" name: "${name}" }) {
-              id
-              name
-            }
+        query: `query {
+          me {
+            email
+            id
           }
-        `,
+        }`,
       })
       .expect(200);
 
@@ -113,39 +95,72 @@ describe('createSpot (e2e)', () => {
     expect(body.data).toBeNull();
   });
 
-  it('should reject creation with non-admin role', async () => {
+  it('should handle user with minimal data (no name)', async () => {
     const accessToken = 'valid-access-token';
-    const email = 'technician@example.com';
+    const email = 'minimal@example.com';
 
     mockSupabaseClient.auth.getUser.mockResolvedValue(
       createGetUserSuccessStub({
         email,
-        id: 'tech-123',
+        id: 'user-456',
         user_metadata: {
-          name: 'Tech User',
           role: Role.TECHNICIAN,
         },
       }),
     );
 
-    const name = 'foo';
-    const location = 'waldo';
     const { body } = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
-        query: `
-          mutation {
-            createSpot(input: { location: "${location}" name: "${name}" }) {
-              id
-              name
-            }
+        query: `query {
+          me {
+            email
+            id
+            name
+            role
           }
-        `,
+        }`,
       })
       .expect(200);
 
-    expect(body.errors[0].message).toBe('Access denied');
+    expect(body.data.me).toEqual({
+      email,
+      id: 'user-456',
+      name: null,
+      role: Role.TECHNICIAN,
+    });
+  });
+
+  it('should return error when user has no role', async () => {
+    const accessToken = 'valid-access-token';
+    const email = 'norole@example.com';
+
+    mockSupabaseClient.auth.getUser.mockResolvedValue(
+      createGetUserSuccessStub({
+        email,
+        id: 'user-789',
+        user_metadata: {
+          name: 'No Role User',
+        },
+      }),
+    );
+
+    const { body } = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        query: `query {
+          me {
+            email
+            id
+            role
+          }
+        }`,
+      })
+      .expect(200);
+
+    expect(body.errors[0].message).toBe('User role not defined');
     expect(body.data).toBeNull();
   });
 });

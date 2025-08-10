@@ -5,8 +5,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { AuthService } from '@auth/auth.service';
 import { Role } from '@auth/enums/role.enum';
-
-import { GqlAuthGuard } from './gql-auth.guard';
+import { GqlAuthGuard } from '@auth/guards/gql-auth.guard';
 
 describe('GqlAuthGuard', () => {
   let guard: GqlAuthGuard;
@@ -42,7 +41,10 @@ describe('GqlAuthGuard', () => {
   });
 
   const createMockExecutionContext = (headers: Record<string, string> = {}): ExecutionContext => {
-    const contextState: any = {};
+    const contextState = {
+      value: null,
+    };
+
     const mockContext = {
       getContext: jest.fn().mockReturnValue({
         req: {
@@ -50,27 +52,29 @@ describe('GqlAuthGuard', () => {
         },
         state: contextState,
       }),
-    };
+    } as unknown as GqlExecutionContext;
 
     // Make state property writable
     Object.defineProperty(mockContext.getContext(), 'state', {
-      get: () => contextState.value,
-      set: (value) => { contextState.value = value; },
       configurable: true,
+      get: () => contextState.value,
+      set: (value) => {
+        contextState.value = value;
+      },
     });
 
     const executionContext = {
-      switchToHttp: jest.fn(),
-      getType: jest.fn(),
+      getArgByIndex: jest.fn(),
+      getArgs: jest.fn(),
       getClass: jest.fn(),
       getHandler: jest.fn(),
-      getArgs: jest.fn(),
-      getArgByIndex: jest.fn(),
+      getType: jest.fn(),
+      switchToHttp: jest.fn(),
       switchToRpc: jest.fn(),
       switchToWs: jest.fn(),
     } as unknown as ExecutionContext;
 
-    jest.spyOn(GqlExecutionContext, 'create').mockReturnValue(mockContext as any);
+    jest.spyOn(GqlExecutionContext, 'create').mockReturnValue(mockContext);
 
     return executionContext;
   };
